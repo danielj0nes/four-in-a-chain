@@ -8,4 +8,6 @@ Four in a Chain - UZH Blockchains and Overlay Networks
 * Euxane Célia Marie Vaz Pinto
 * Turki Alahmadi
 ## Project details
-...
+* **Useful** - https://gitlab.ifi.uzh.ch/scheid/bcoln/tree/master/Solidity
+* Configured the testnet as per the intructions above, two default accounts passwords are: *123456*
+
