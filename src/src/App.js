@@ -1,24 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import React, { useEffect, useState } from "react";
+import { init, storeP } from "./client"
 
 function App() {
+  const [storedf, setStored] = useState(false);
+  const storeT = () => {
+    storeP()
+      .then((tx) => {
+        console.log(tx);
+        setStored(true);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  <div className="App">
+    {!storedf ? (
+      <button onClick={() => storeT()}>Store</button>
+    ) : (
+      <p>Stored!</p>
+    )}
+  </div>
   );
 }
 
