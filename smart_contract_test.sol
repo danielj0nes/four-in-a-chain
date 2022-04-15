@@ -7,11 +7,11 @@ contract Four_In_A_Chain {
 	event GameStarted(address indexed player1, address indexed player2);
     event playerTurn(address indexed player1, address indexed player2);
     event Error(address player1, string error);
-	event MoveMade(address indexed player, uint ID, uint8 column);
+	event MoveMade(address indexed player, uint ID, uint column);
 	event GameWon(address indexed winner, uint256 gameId);
 
     // Game-related variables
-    uint256 public gameCount =0;
+    uint256 public gameCount = 0;
     uint constant bet = 2 ether;
     enum State {Initiated, InProgress, Ended}
     mapping(uint => Game) games;
@@ -44,38 +44,45 @@ contract Four_In_A_Chain {
         uint gameID;
 		address player1;
 		address player2;
-        uint8[6][7] board;
+        uint[7][6] board;
         bool isPlayer1Turn;
         State gameState;
+        address gameWinner;
     }
 
-    function getBoard(uint ID) public view returns (uint8[6][7] memory board) {
+    function getBoard(uint ID) public view returns (uint[7][6] memory board) {
         return games[ID].board;
+    }
+    // created this function to understand the positions in the board
+    function fillBoard(uint ID, uint row, uint col, uint val) public {
+        Game storage g = games[ID];
+        g.board[row][col] = val;
     }
 
     function addGame(address p1, address p2) internal {
         gameCount++;
-        uint8[6][7] memory board;
+        uint[7][6] memory board;
         State gameState;
         gameState = State.Initiated;
-        games[gameCount] = Game(gameCount, p1, p2, board, true, gameState);
+        address gameWinner = address(0);
+        games[gameCount] = Game(gameCount, p1, p2, board, true, gameState, gameWinner);
     }
 
-    function makeMove(uint ID, uint8 col) public yourTurn(ID) {
+    function makeMove(uint ID, uint col) public payable yourTurn(ID) {
         Game storage g = games[ID];
         require(g.gameState == State.InProgress, "Game has not yet started or has ended already!");
         require(col >= 0 && col <= 6, "Out of board bounds! Enter a number between 0 and 6");
-        uint8 row = 5;
+        uint row = 0;
         // select the available row at the specified column
-        while (row >= 0 && g.board[row][col] != 0) {
-            row--;
+        while (row <= 5 && g.board[row][col] != 0) {
+            row++;
         }
-        require(row >= 0, "The column is filled. Choose another column.");
+        require(row <= 5, "This column is filled. Choose another column.");
         // place chip in the specified column
         if (msg.sender == g.player1) {
-            g.board[row][col] = 1;
+            fillBoard(ID,row,col,1);
         } else {
-            g.board[row][col] = 2;
+            fillBoard(ID,row,col,2);
         }
         if (g.isPlayer1Turn == true) {
             g.isPlayer1Turn = false;
@@ -88,9 +95,17 @@ contract Four_In_A_Chain {
         checkForWinner(row, col, ID);
     }
     // Maybe not needed?
-    function startGame(uint ID) public {
-        emit GameStarted(games[ID].player1,games[ID].player2);
-        //emit playerTurn
+    function gameStatus(uint ID) public view returns(string memory status){
+        Game storage g = games[ID];
+        if (g.gameState == State.Initiated) {
+            return "Initiated";
+        }
+        else if (g.gameState == State.InProgress) {
+            return "In Progress";
+        }
+        else if (g.gameState == State.Ended) {
+            return "Ended";
+        }
     }
 
     function joinGame() public payable BetAmount returns(uint ID) {
@@ -112,18 +127,16 @@ contract Four_In_A_Chain {
             g.isPlayer1Turn = (blockNum % 2) == 0;
             // change game state and start game
             g.gameState = State.InProgress;
-            startGame(g.gameID);
             emit GameStarted(g.player1,g.player2);
         }
         return g.gameID;
     }
 
-
     //Call the functions to check each direction (4 are needed)
     //Missing: something to stop the other functions to be executed if the game is finished already.
     function checkForWinner(uint chip_row, uint chip_col, uint id) internal {
         horizontalCheck(chip_row, chip_col, id);
-        downCheck(chip_row, chip_col, id);
+        verticalCheck(chip_row, chip_col, id);
         downLeftUpRightCheck(chip_row, chip_col, id);
         downRightUpLeftCheck(chip_row, chip_col, id);
     }
@@ -133,61 +146,93 @@ contract Four_In_A_Chain {
      2. Checks wether that chip is located in a square where it is possible to have a 4 in a row
      3. If yes, calls the connectFourCheck while specifiying the direction in which the 4 in a row should be checked
     */
-    function horizontalCheck(uint r, uint c, uint id) internal {
-        Game memory g = games[id];
-        while(g.board[r][c+1] == g.board[r][c]) {
+    function horizontalCheck(uint r, uint c, uint gameID) internal {
+        Game memory g = games[gameID];
+        uint chipCounter = 1;
+        uint row = r;
+        uint col = c;
+        while(c<6 && g.board[r][c+1] == g.board[r][c]) {
+            chipCounter++;
             c=c+1;
         }
-        if (r >= 3){
-            connectFourCheck(id, -1, 0, r, c);
+        r = row;
+        c = col;
+        while(c>0 && g.board[r][c-1] == g.board[r][c]) {
+            chipCounter++;
+            c=c-1;
+        }
+        if (chipCounter >= 4){
+            g.gameWinner = msg.sender;
+            g.gameState = State.Ended;
+            emit GameWon(g.gameWinner, g.gameID);
         }
     }
-    function downCheck (uint r, uint c, uint id) internal {
-        if (r>=3){
-            connectFourCheck(id, 0, -1, r, c);
+    function verticalCheck (uint r, uint c, uint gameID) internal {
+        Game memory g = games[gameID];
+        uint chipCounter = 1;
+        uint row = r;
+        uint col = c;
+        while(r<5 && g.board[r+1][c] == g.board[r][c]) {
+            chipCounter++;
+            r=r+1;
+        }
+        r = row;
+        c = col;
+        while(r>0 && g.board[r-1][c] == g.board[r][c]) {
+            chipCounter++;
+            r=r-1;
+        }
+        if (chipCounter >= 4){
+            g.gameWinner = msg.sender;
+            g.gameState = State.Ended;
+            emit GameWon(g.gameWinner, g.gameID);
         }
     }
-    function downLeftUpRightCheck(uint r, uint c, uint id) internal {
-        Game memory g = games[id];
-        while(g.board[r+1][c+1] == g.board[r][c]){
+    function downLeftUpRightCheck(uint r, uint c, uint gameID) internal {
+        Game memory g = games[gameID];
+        uint chipCounter = 1;
+        uint row = r;
+        uint col = c;
+        while(r<5 && c<6 && g.board[r+1][c+1] == g.board[r][c]){
+            chipCounter++;
             r=r+1;
             c=c+1;
         }
-        if (c>=3 && r>=3){
-            connectFourCheck(id, -1, -1, r, c);
+        r = row;
+        c = col;
+        while(r>0 && c>0 && g.board[r-1][c-1] == g.board[r][c]){
+            chipCounter++;
+            r=r-1;
+            c=c-1;
+        }
+        if (chipCounter >= 4){
+            g.gameWinner = msg.sender;
+            g.gameState = State.Ended;
+            emit GameWon(g.gameWinner, g.gameID);
         }
     }
-    function downRightUpLeftCheck(uint r, uint c, uint id) internal {
-        Game memory g = games[id];
-        while(g.board[r+1][c-1] == g.board[r][c]){
+    function downRightUpLeftCheck(uint r, uint c, uint gameID) internal {
+        Game memory g = games[gameID];
+        uint chipCounter = 1;
+        uint row = r;
+        uint col = c;
+        while(r>0 && c<6 && g.board[r-1][c+1] == g.board[r][c]){
+            chipCounter++;
+            r=r-1;
+            c=c+1;
+        }
+        r = row;
+        c = col;
+        while(r<6 && c>0 && g.board[r+1][c-1] == g.board[r][c]){
+            chipCounter++;
             r=r+1;
             c=c-1;
         }
-        if (c<=3 && r>=3){
-            connectFourCheck(id, -1, 1, r, c);
-        }
-    }
-    /*General function that will move to the direction specified and check for consecutive tokens. If there are
-        four consecutive tokens, the GameWon event is emitted and the game is ended.
-    */
-    function connectFourCheck(uint id, int row_direction, int column_direction, uint row, uint column) internal {
-        Game memory g = games[id];
-
-        uint chipCounter = 1;
-        uint rowPlusDir = uint(int(row)+int(row_direction));
-        uint colPlusDir = uint(int(column)+int(column_direction));
-        while(g.board[row][column] == g.board[rowPlusDir][colPlusDir]){
-            chipCounter++;
-            rowPlusDir = uint(int(row)+int(row_direction));
-            colPlusDir = uint(int(column)+int(column_direction));
-        }
         if (chipCounter >= 4){
-            address winnerplayer = g.player2;
-            if (g.isPlayer1Turn){
-                winnerplayer = g.player1;
-            }
-            emit GameWon(winnerplayer, g.gameID);
+            g.gameWinner = msg.sender;
             g.gameState = State.Ended;
+            emit GameWon(g.gameWinner, g.gameID);
+
         }
     }
 
