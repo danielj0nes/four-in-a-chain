@@ -8,7 +8,8 @@ contract Four_In_A_Chain {
     event playerTurn(address indexed player1, address indexed player2);
     event Error(address player1, string error);
 	event MoveMade(address indexed player, uint ID, uint column);
-	event GameWon(address indexed winner, uint256 gameId);
+	event GameWon(address indexed winner, uint256 ID);
+    event GameTied(uint256 ID);
 
     // Game-related variables
     uint256 public gameCount = 0;
@@ -39,7 +40,8 @@ contract Four_In_A_Chain {
         }
         _;
     }
-
+    //player1Tied and player2Tied could be deleted if player1 and player2 were direclty payable addresses.
+    //But maybe that could be safer to only be able to transfer money to addresses when the tie / win occurs.
     struct Game {
         uint gameID;
 		address player1;
@@ -47,7 +49,10 @@ contract Four_In_A_Chain {
         uint[7][6] board;
         bool isPlayer1Turn;
         State gameState;
-        address gameWinner;
+        address payable gameWinner;
+        address payable tiedPlayer1;
+        address payable tiedPlayer2;
+        uint8 chipsCount;
     }
 
     function getBoard(uint ID) public view returns (uint[7][6] memory board) {
@@ -59,16 +64,23 @@ contract Four_In_A_Chain {
         g.board[row][col] = val;
     }
 
+    //Changes to avoid using the "memory" for the board. The code works without the commented part,
+    //you can remove it if you agree with it. -Eux
     function addGame(address p1, address p2) internal {
         gameCount++;
-        uint[7][6] memory board;
-        State gameState;
-        gameState = State.Initiated;
-        address gameWinner = address(0);
-        games[gameCount] = Game(gameCount, p1, p2, board, true, gameState, gameWinner);
+        //uint[7][6] memory board;
+        //State gameState;
+        //gameState = State.Initiated;
+        //address payable gameWinner = payable(address(0)) ;
+        Game storage g = games[gameCount];
+        g.player1=p1;
+        g.player2=p2;
+        g.gameState=State.Initiated;
+        g.chipsCount=0;
+        //games[gameCount] = Game(gameCount, p1, p2, board, true, gameState, gameWinner);
     }
 
-    function makeMove(uint ID, uint col) public payable yourTurn(ID) {
+    function makeMove(uint ID, uint col) public yourTurn(ID) {
         Game storage g = games[ID];
         require(g.gameState == State.InProgress, "Game has not yet started or has ended already!");
         require(col >= 0 && col <= 6, "Out of board bounds! Enter a number between 0 and 6");
@@ -93,6 +105,10 @@ contract Four_In_A_Chain {
             emit MoveMade(g.player2, g.gameID, col);
         }
         checkForWinner(row, col, ID);
+        g.chipsCount++;
+        if(g.chipsCount>=4){
+            gameIsTied(ID);
+        }
     }
     // Maybe not needed?
     function gameStatus(uint ID) public view returns(string memory status){
@@ -117,7 +133,7 @@ contract Four_In_A_Chain {
             addGame(msg.sender, address(0));
         }
         else if (g.gameState == State.Initiated) {
-            require(msg.sender != g.player1, "You can't play against yourself!");
+            require(msg.sender != g.player1, "You have initiated a game already. Please wait for an opponent.");
             g.player2 = msg.sender;
             /// randomly choose first player to play
             blockNum = block.number;
@@ -146,8 +162,8 @@ contract Four_In_A_Chain {
      2. Checks wether that chip is located in a square where it is possible to have a 4 in a row
      3. If yes, calls the connectFourCheck while specifiying the direction in which the 4 in a row should be checked
     */
-    function horizontalCheck(uint r, uint c, uint gameID) internal {
-        Game memory g = games[gameID];
+    function horizontalCheck(uint r, uint c, uint id) internal {
+        Game storage g = games[id];
         uint chipCounter = 1;
         uint row = r;
         uint col = c;
@@ -162,13 +178,14 @@ contract Four_In_A_Chain {
             c=c-1;
         }
         if (chipCounter >= 4){
-            g.gameWinner = msg.sender;
+            g.gameWinner = payable(msg.sender);
             g.gameState = State.Ended;
             emit GameWon(g.gameWinner, g.gameID);
+            g.gameWinner.transfer(2*bet);
         }
     }
-    function verticalCheck (uint r, uint c, uint gameID) internal {
-        Game memory g = games[gameID];
+    function verticalCheck (uint r, uint c, uint id) internal {
+        Game storage g = games[id];
         uint chipCounter = 1;
         uint row = r;
         uint col = c;
@@ -183,13 +200,14 @@ contract Four_In_A_Chain {
             r=r-1;
         }
         if (chipCounter >= 4){
-            g.gameWinner = msg.sender;
+            g.gameWinner = payable(msg.sender);
             g.gameState = State.Ended;
             emit GameWon(g.gameWinner, g.gameID);
+            g.gameWinner.transfer(2*bet);
         }
     }
-    function downLeftUpRightCheck(uint r, uint c, uint gameID) internal {
-        Game memory g = games[gameID];
+    function downLeftUpRightCheck(uint r, uint c, uint id) internal {
+        Game storage g = games[id];
         uint chipCounter = 1;
         uint row = r;
         uint col = c;
@@ -206,13 +224,14 @@ contract Four_In_A_Chain {
             c=c-1;
         }
         if (chipCounter >= 4){
-            g.gameWinner = msg.sender;
+            g.gameWinner = payable(msg.sender);
             g.gameState = State.Ended;
             emit GameWon(g.gameWinner, g.gameID);
+            g.gameWinner.transfer(2*bet);
         }
     }
-    function downRightUpLeftCheck(uint r, uint c, uint gameID) internal {
-        Game memory g = games[gameID];
+    function downRightUpLeftCheck(uint r, uint c, uint id) internal {
+        Game storage g = games[id];
         uint chipCounter = 1;
         uint row = r;
         uint col = c;
@@ -229,11 +248,28 @@ contract Four_In_A_Chain {
             c=c-1;
         }
         if (chipCounter >= 4){
-            g.gameWinner = msg.sender;
+            g.gameWinner = payable(msg.sender);
             g.gameState = State.Ended;
             emit GameWon(g.gameWinner, g.gameID);
+            g.gameWinner.transfer(2*bet);
 
         }
+    }
+
+    function getBalance() public view returns(uint bal) {
+        bal = address(this).balance;
+    }
+
+
+    function gameIsTied (uint id) internal{
+        Game storage g = games[id];
+        g.tiedPlayer1 = payable(g.player1);
+        g.tiedPlayer2 = payable(g.player2);
+        g.gameState = State.Ended;
+        emit GameTied(g.gameID);
+        g.tiedPlayer1.transfer(bet);
+        g.tiedPlayer2.transfer(bet);
+
     }
 
 }
