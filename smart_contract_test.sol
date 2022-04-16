@@ -106,7 +106,7 @@ contract Four_In_A_Chain {
         }
         checkForWinner(row, col, ID);
         g.chipsCount++;
-        if(g.chipsCount>=4){
+        if(g.chipsCount>=42){
             gameIsTied(ID);
         }
     }
