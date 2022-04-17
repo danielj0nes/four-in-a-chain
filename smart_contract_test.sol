@@ -19,9 +19,9 @@ contract Four_In_A_Chain {
     uint constant bet = 2 ether;
     uint constant rewardFactor = 0;
     enum State {Initiated, InProgress, Ended}
-    enum gameEnding{Win, Tie, Withdrawal}
+    enum gameEnding{Win, Tie, Withdrawal, Timeout}
     mapping(uint => Game) games;
-    uint private timeToPlay = 30;
+    uint private timeToPlay = 200;
 
     // Randomness variables (may not need all of them)
     address private minerHash;
@@ -34,12 +34,6 @@ contract Four_In_A_Chain {
         require(msg.value == bet, "Betting amount is 2 ether");
         _;
     }
-
-   /* modifier checkForTimeout(address player) {
-        if(TRUC(player)>=block.timestamp){
-            false;
-        }
-    } */
 
     modifier yourTurn(uint ID) {
         Game storage g = games[ID];
@@ -62,6 +56,7 @@ contract Four_In_A_Chain {
         State gameState;
         address payable gameWinner;
         uint8 chipsCount;
+        uint timeout;
     }
 
     function getBoard(uint ID) public view returns (uint[7][6] memory board) {
@@ -114,12 +109,12 @@ contract Four_In_A_Chain {
             g.isPlayer1Turn = true;
             emit MoveMade(g.player2, g.gameID, col);
         }
-        console.log("It is player %s turn", msg.sender);
         checkForWinner(row, col, ID);
         g.chipsCount++;
         if(g.chipsCount>=4){
             gameIsTied(ID);
         }
+        g.timeout = block.timestamp+timeToPlay;
     }
     // Maybe not needed?
     function gameStatus(uint ID) public view returns(string memory status){
@@ -155,6 +150,7 @@ contract Four_In_A_Chain {
             g.isPlayer1Turn = (blockNum % 2) == 0;
             // change game state and start game
             g.gameState = State.InProgress;
+            g.timeout=block.timestamp+timeToPlay;
             emit GameStarted(g.player1,g.player2);
         }
         return g.gameID;
@@ -264,6 +260,20 @@ contract Four_In_A_Chain {
         endOfGameTransaction(id, gameEnding.Withdrawal);
     }
 
+    //Alternative to having something automatically done as it cannot be done (..?)
+    //Function that a player has to call himself when he thinks the other is taking too much time.
+    //Time for timeout is reset at each move. 
+    function askForTimeout(uint id) public {
+        Game storage g = games[id];
+        console.log("The timeout time is %s, we are at timestamp %s", g.timeout, block.timestamp);
+        require(msg.sender==g.player1 && g.isPlayer1Turn==false || msg.sender==g.player2 && g.isPlayer1Turn==true,
+            "It's your turn to play");
+        require(g.timeout <= block.timestamp, 
+            "Please be a bit more patient...");
+        endOfGameTransaction(id, gameEnding.Timeout);
+    }
+
+
     function endOfGameTransaction(uint id, gameEnding e) internal {
         Game storage g = games[id];
         if(e==gameEnding.Withdrawal){
@@ -289,7 +299,15 @@ contract Four_In_A_Chain {
             msg.sender==g.player1? gameLoser = payable(g.player2) : gameLoser = payable(g.player1);
             gameLoser.transfer(rewardFactor*bet);
         }
+        else if (e == gameEnding.Timeout){
+            msg.sender == g.player1? g.gameWinner=payable(g.player1) : g.gameWinner = payable(g.player2);
+            g.gameState = State.Ended;
+            emit GameWon(g.gameWinner, g.gameID);
+            g.gameWinner.transfer(2*bet);
+        }
     }
+
+
 
 
 }
