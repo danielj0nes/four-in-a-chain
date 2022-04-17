@@ -2,7 +2,7 @@
 /src/node_modules
 /src/.pnp
 /src/.pnp.js
-/src/package-lock.json
+/src/package-lock.*
 
 # testing
 /src/coverage
