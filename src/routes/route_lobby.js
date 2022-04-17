@@ -1,6 +1,5 @@
 /**
- * File to define the API route handlers for the public login and registration functionality.
- * This code was provided via the initial project template
+ * File to define the API route handlers for the lobby functionality.
  * @module routes/route_lobby
  * @author Daniel Jones
  */
@@ -13,7 +12,7 @@
   * @route {GET} /
   */
  router.get("/", async ctx => {
-     await ctx.redirect("lobby"); 
+     ctx.redirect("lobby"); 
      console.log("Redirected to lobby");
  });
 

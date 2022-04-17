@@ -1,5 +1,5 @@
 /**
- * File to obtain and connect the various routers from the different route files
+ * File to obtain, add, and connect the various routers from the different route files
  * @module routes/route_index
  * @author Daniel Jones
  */

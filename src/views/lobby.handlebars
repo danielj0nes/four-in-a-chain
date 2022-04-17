@@ -3,31 +3,17 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>Home Page</title>
-		<meta name="description" content="Sandwich Ordering Service - Index">
+		<title>Four in a Chain - Lobby</title>
+		<meta name="description" content="Four in a Chain - Lobby">
 		<meta name="author" content="Daniel Jones">
 		<link href="{{host}}/style.css" type="text/css" rel="stylesheet" />
-		<script type="module" src="{{host}}/main.js"></script>
 	</head>
 	<body>
 		<header>
-			<h1>Home</h1>
-			{{#if authorised}}
-				<a href="/logout">Log out</a>
-			{{else}}
-				<a href="/login">Log in</a>
-			{{/if}}
+			<h1>Game Lobby</h1>
 		</header>
-		{{#if msg}}
- 			<aside>
-				<p class="msg">{{msg}}</p>
-			</aside>
-		{{/if}}
 	<main>
-		<p>This is the home page. Users can see it without logging in.</p>
-		{{#if authorised}}
-			<p><a href="/secure">secure page</a></p>
-		{{/if}}
+		<p>This will be the lobby page</p>
 	</main>
 	</body>
 </html>
