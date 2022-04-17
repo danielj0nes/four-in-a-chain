@@ -1,40 +1,31 @@
 {
-  "name": "src",
-  "version": "0.1.0",
-  "private": true,
+  "name": "four-in-a-chain",
+  "version": "0.0.1",
+  "description": "Four in a Chain project - Group Hera - UZH",
+  "author": "Daniel Jones",
+  "license": "ISC",
+  "type": "module",
   "dependencies": {
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.1.0",
-    "@testing-library/user-event": "^13.5.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-scripts": "^2.1.3",
-    "web-vitals": "^2.1.4",
-    "web3": "^1.7.3",
-    "contracts": "file:../contracts/"
+    "contracts": "file:../contracts/",
+    "handlebars": "^4.7.7",
+    "koa": "^2.13.4",
+    "koa-body": "^4.2.0",
+    "koa-mount": "^4.0.0",
+    "koa-router": "^10.1.1",
+    "koa-session": "^6.2.0",
+    "koa-static": "^5.0.0",
+    "koa-views": "^8.0.0",
+    "web3": "^1.7.3"
   },
   "scripts": {
-    "start": "DISABLE_ESLINT_PLUGIN=true react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "nodemon main/index.js",
+    "build": "",
+    "test": "",
+    "eject": ""
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+  "main": "index.js",
+  "keywords": []
 }
