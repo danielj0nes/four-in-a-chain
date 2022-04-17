@@ -21,7 +21,7 @@ contract Four_In_A_Chain {
     enum State {Initiated, InProgress, Ended}
     enum gameEnding{Win, Tie, Withdrawal, Timeout}
     mapping(uint => Game) games;
-    uint private timeToPlay = 200;
+    uint private timeToPlay = 500;
 
     // Randomness variables (may not need all of them)
     address private minerHash;
@@ -38,6 +38,7 @@ contract Four_In_A_Chain {
     modifier yourTurn(uint ID) {
         Game storage g = games[ID];
         require(msg.sender == g.player1 || msg.sender == g.player2, "You're not part of this game!");
+        require(g.gameState == State.InProgress, "Game has not yet started or has ended already!");
         if (g.isPlayer1Turn == true) {
             require(msg.sender == g.player1, "It's player 1 turn");
         }
@@ -66,28 +67,21 @@ contract Four_In_A_Chain {
     function fillBoard(uint ID, uint row, uint col, uint val) public {
         Game storage g = games[ID];
         g.board[row][col] = val;
+        g.chipsCount++;
     }
 
-    //Changes to avoid using the "memory" for the board. The code works without the commented part,
-    //you can remove it if you agree with it. -Eux
     function addGame(address p1, address p2) internal {
         gameCount++;
-        //uint[7][6] memory board;
-        //State gameState;
-        //gameState = State.Initiated;
-        //address payable gameWinner = payable(address(0)) ;
         Game storage g = games[gameCount];
         g.player1=p1;
         g.player2=p2;
         g.gameState=State.Initiated;
         g.chipsCount=0;
-        //games[gameCount] = Game(gameCount, p1, p2, board, true, gameState, gameWinner);
     }
 
     //Slight "problem" : as yourTurn comes before require State.InProgress, will get error message that it's not your turn when game has ended.
     function makeMove(uint ID, uint col) public yourTurn(ID) {
         Game storage g = games[ID];
-        require(g.gameState == State.InProgress, "Game has not yet started or has ended already!");
         require(col >= 0 && col <= 6, "Out of board bounds! Enter a number between 0 and 6");
         uint row = 0;
         // select the available row at the specified column
@@ -110,13 +104,14 @@ contract Four_In_A_Chain {
             emit MoveMade(g.player2, g.gameID, col);
         }
         checkForWinner(row, col, ID);
-        g.chipsCount++;
+        // added this line to the fillBoard function
+        //g.chipsCount++;
         if(g.chipsCount>=42){
             gameIsTied(ID);
         }
         g.timeout = block.timestamp+timeToPlay;
     }
-    // Maybe not needed?
+
     function gameStatus(uint ID) public view returns(string memory status){
         Game storage g = games[ID];
         if (g.gameState == State.Initiated) {
@@ -157,12 +152,18 @@ contract Four_In_A_Chain {
     }
 
     //Call the functions to check each direction (4 are needed)
-    //Missing: something to stop the other functions to be executed if the game is finished already.
     function checkForWinner(uint chip_row, uint chip_col, uint id) internal {
+        Game storage g = games[id];
         horizontalCheck(chip_row, chip_col, id);
-        verticalCheck(chip_row, chip_col, id);
-        downLeftUpRightCheck(chip_row, chip_col, id);
-        downRightUpLeftCheck(chip_row, chip_col, id);
+        if (g.gameState == State.InProgress) {
+            verticalCheck(chip_row, chip_col, id);
+        }
+        if (g.gameState == State.InProgress) {
+            downLeftUpRightCheck(chip_row, chip_col, id);
+        }
+        if (g.gameState == State.InProgress) {
+            downRightUpLeftCheck(chip_row, chip_col, id);
+        }
     }
 
     /*Each function, starting from the location of the last played chip :
@@ -241,7 +242,7 @@ contract Four_In_A_Chain {
         }
         r = row;
         c = col;
-        while(r<6 && c>0 && g.board[r+1][c-1] == g.board[r][c]){
+        while(r<5 && c>0 && g.board[r+1][c-1] == g.board[r][c]){
             chipCounter++;
             r=r+1;
             c=c-1;
@@ -273,7 +274,6 @@ contract Four_In_A_Chain {
         endOfGameTransaction(id, gameEnding.Timeout);
     }
 
-
     function endOfGameTransaction(uint id, gameEnding e) internal {
         Game storage g = games[id];
         if(e==gameEnding.Withdrawal){
@@ -294,10 +294,10 @@ contract Four_In_A_Chain {
             g.gameWinner = payable(msg.sender);
             g.gameState = State.Ended;
             emit GameWon(g.gameWinner, g.gameID);
-            g.gameWinner.transfer(bet+(1-rewardFactor)*bet);
+            g.gameWinner.transfer(bet+bet*90/100);
             address payable gameLoser;
             msg.sender==g.player1? gameLoser = payable(g.player2) : gameLoser = payable(g.player1);
-            gameLoser.transfer(rewardFactor*bet);
+            gameLoser.transfer(bet*10/100);
         }
         else if (e == gameEnding.Timeout){
             msg.sender == g.player1? g.gameWinner=payable(g.player1) : g.gameWinner = payable(g.player2);
@@ -306,8 +306,5 @@ contract Four_In_A_Chain {
             g.gameWinner.transfer(2*bet);
         }
     }
-
-
-
 
 }
