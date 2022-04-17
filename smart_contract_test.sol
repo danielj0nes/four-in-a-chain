@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
+import "hardhat/console.sol";
 pragma solidity >=0.7.0 <0.9.0;
 
+
 contract Four_In_A_Chain {
+    
 
 	/// EVENTS ///
 	event GameStarted(address indexed player1, address indexed player2);
@@ -14,8 +17,11 @@ contract Four_In_A_Chain {
     // Game-related variables
     uint256 public gameCount = 0;
     uint constant bet = 2 ether;
+    uint constant rewardFactor = 0;
     enum State {Initiated, InProgress, Ended}
+    enum gameEnding{Win, Tie, Withdrawal}
     mapping(uint => Game) games;
+    uint private timeToPlay = 30;
 
     // Randomness variables (may not need all of them)
     address private minerHash;
@@ -29,6 +35,12 @@ contract Four_In_A_Chain {
         _;
     }
 
+   /* modifier checkForTimeout(address player) {
+        if(TRUC(player)>=block.timestamp){
+            false;
+        }
+    } */
+
     modifier yourTurn(uint ID) {
         Game storage g = games[ID];
         require(msg.sender == g.player1 || msg.sender == g.player2, "You're not part of this game!");
@@ -40,8 +52,7 @@ contract Four_In_A_Chain {
         }
         _;
     }
-    //player1Tied and player2Tied could be deleted if player1 and player2 were direclty payable addresses.
-    //But maybe that could be safer to only be able to transfer money to addresses when the tie / win occurs.
+
     struct Game {
         uint gameID;
 		address player1;
@@ -50,8 +61,6 @@ contract Four_In_A_Chain {
         bool isPlayer1Turn;
         State gameState;
         address payable gameWinner;
-        address payable tiedPlayer1;
-        address payable tiedPlayer2;
         uint8 chipsCount;
     }
 
@@ -80,6 +89,7 @@ contract Four_In_A_Chain {
         //games[gameCount] = Game(gameCount, p1, p2, board, true, gameState, gameWinner);
     }
 
+    //Slight "problem" : as yourTurn comes before require State.InProgress, will get error message that it's not your turn when game has ended.
     function makeMove(uint ID, uint col) public yourTurn(ID) {
         Game storage g = games[ID];
         require(g.gameState == State.InProgress, "Game has not yet started or has ended already!");
@@ -104,9 +114,10 @@ contract Four_In_A_Chain {
             g.isPlayer1Turn = true;
             emit MoveMade(g.player2, g.gameID, col);
         }
+        console.log("It is player %s turn", msg.sender);
         checkForWinner(row, col, ID);
         g.chipsCount++;
-        if(g.chipsCount>=42){
+        if(g.chipsCount>=4){
             gameIsTied(ID);
         }
     }
@@ -122,6 +133,7 @@ contract Four_In_A_Chain {
         else if (g.gameState == State.Ended) {
             return "Ended";
         }
+
     }
 
     function joinGame() public payable BetAmount returns(uint ID) {
@@ -158,9 +170,9 @@ contract Four_In_A_Chain {
     }
 
     /*Each function, starting from the location of the last played chip :
-     1. Goes to the chip from the same player which is the furthest away possible in a direction
-     2. Checks wether that chip is located in a square where it is possible to have a 4 in a row
-     3. If yes, calls the connectFourCheck while specifiying the direction in which the 4 in a row should be checked
+     1. Goes to the chip from the same player which is the furthest away possible in a direction and count chips
+     2. Goes the opposite direction and count chips
+     3. If there is 4 chips or more, call the endOfGame function.
     */
     function horizontalCheck(uint r, uint c, uint id) internal {
         Game storage g = games[id];
@@ -178,10 +190,7 @@ contract Four_In_A_Chain {
             c=c-1;
         }
         if (chipCounter >= 4){
-            g.gameWinner = payable(msg.sender);
-            g.gameState = State.Ended;
-            emit GameWon(g.gameWinner, g.gameID);
-            g.gameWinner.transfer(2*bet);
+            endOfGameTransaction(id, gameEnding.Win);
         }
     }
     function verticalCheck (uint r, uint c, uint id) internal {
@@ -200,10 +209,7 @@ contract Four_In_A_Chain {
             r=r-1;
         }
         if (chipCounter >= 4){
-            g.gameWinner = payable(msg.sender);
-            g.gameState = State.Ended;
-            emit GameWon(g.gameWinner, g.gameID);
-            g.gameWinner.transfer(2*bet);
+            endOfGameTransaction(id, gameEnding.Win);
         }
     }
     function downLeftUpRightCheck(uint r, uint c, uint id) internal {
@@ -224,10 +230,7 @@ contract Four_In_A_Chain {
             c=c-1;
         }
         if (chipCounter >= 4){
-            g.gameWinner = payable(msg.sender);
-            g.gameState = State.Ended;
-            emit GameWon(g.gameWinner, g.gameID);
-            g.gameWinner.transfer(2*bet);
+            endOfGameTransaction(id, gameEnding.Win);
         }
     }
     function downRightUpLeftCheck(uint r, uint c, uint id) internal {
@@ -248,28 +251,45 @@ contract Four_In_A_Chain {
             c=c-1;
         }
         if (chipCounter >= 4){
-            g.gameWinner = payable(msg.sender);
-            g.gameState = State.Ended;
-            emit GameWon(g.gameWinner, g.gameID);
-            g.gameWinner.transfer(2*bet);
-
+            endOfGameTransaction(id, gameEnding.Win);
         }
-    }
-
-    function getBalance() public view returns(uint bal) {
-        bal = address(this).balance;
     }
 
 
     function gameIsTied (uint id) internal{
-        Game storage g = games[id];
-        g.tiedPlayer1 = payable(g.player1);
-        g.tiedPlayer2 = payable(g.player2);
-        g.gameState = State.Ended;
-        emit GameTied(g.gameID);
-        g.tiedPlayer1.transfer(bet);
-        g.tiedPlayer2.transfer(bet);
-
+        endOfGameTransaction(id, gameEnding.Tie);
     }
+
+    function withdraw(uint id) public yourTurn(id) {
+        endOfGameTransaction(id, gameEnding.Withdrawal);
+    }
+
+    function endOfGameTransaction(uint id, gameEnding e) internal {
+        Game storage g = games[id];
+        if(e==gameEnding.Withdrawal){
+            msg.sender == g.player1? g.gameWinner=payable(g.player2) : g.gameWinner = payable(g.player1);
+            g.gameState = State.Ended;
+            emit GameWon(g.gameWinner, g.gameID);
+            g.gameWinner.transfer(2*bet);
+        }
+        else if (e == gameEnding.Tie){
+            address payable tiedPlayer1 = payable(g.player1);
+            address payable tiedPlayer2 = payable(g.player2);
+            g.gameState = State.Ended;
+            emit GameTied(g.gameID);
+            tiedPlayer1.transfer(bet);
+            tiedPlayer2.transfer(bet);
+        }
+        else if (e == gameEnding.Win){
+            g.gameWinner = payable(msg.sender);
+            g.gameState = State.Ended;
+            emit GameWon(g.gameWinner, g.gameID);
+            g.gameWinner.transfer(bet+(1-rewardFactor)*bet);
+            address payable gameLoser;
+            msg.sender==g.player1? gameLoser = payable(g.player2) : gameLoser = payable(g.player1);
+            gameLoser.transfer(rewardFactor*bet);
+        }
+    }
+
 
 }
