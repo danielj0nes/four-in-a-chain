@@ -1,5 +1,5 @@
 import Web3 from "web3";
-import Storage from "contracts/testcontract_abi.json";
+import Storage from "../contracts/testcontract_abi.json";
 
 let selectedAccount;
 let testContract;

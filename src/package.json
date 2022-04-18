@@ -18,7 +18,7 @@
     "web3": "^1.7.3"
   },
   "scripts": {
-    "start": "nodemon main/index.js",
+    "start": "nodemon --experimental-json-modules index.js",
     "build": "",
     "test": "",
     "eject": ""

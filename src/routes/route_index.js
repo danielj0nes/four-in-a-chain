@@ -6,13 +6,14 @@
 import Router from "koa-router";
 import bodyParser from "koa-body";
 
+import defaultRouter from "./route_default.js";
 import lobbyRouter from "./route_lobby.js";
 
 const mainRouter = new Router();
 
 mainRouter.use(bodyParser({multipart: true}));
 
-const nestedRoutes = [lobbyRouter];
+const nestedRoutes = [defaultRouter, lobbyRouter];
 for (const router of nestedRoutes) {
 	mainRouter.use(router.routes());
 	mainRouter.use(router.allowedMethods());

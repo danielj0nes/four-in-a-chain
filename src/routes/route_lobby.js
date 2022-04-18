@@ -3,23 +3,16 @@
  * @module routes/route_lobby
  * @author Daniel Jones
  */
- import Router from "koa-router";
- 
- const router = new Router();
- /**
-  * The main lobby page
-  * @name lobby_page
-  * @route {GET} /
-  */
- router.get("/", async ctx => {
-     ctx.redirect("lobby"); 
-     console.log("Redirected to lobby");
- });
+import Router from "koa-router";
+import Web3 from "web3";
+// import Storage from "../../contracts/testcontract_abi.json";
 
- router.get("/lobby", async ctx => {
+const lobbyPrefix = "/lobby"
+const router = new Router({ prefix: lobbyPrefix });
+
+router.get("/", async ctx => {
     await ctx.render("lobby", ctx.hbs);
-    console.log("Lobby route successfully rendered");
- });
+});
 
  export default router;
  

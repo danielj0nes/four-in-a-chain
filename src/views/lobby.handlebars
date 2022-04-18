@@ -7,6 +7,8 @@
 		<meta name="description" content="Four in a Chain - Lobby">
 		<meta name="author" content="Daniel Jones">
 		<link href="{{host}}/style.css" type="text/css" rel="stylesheet" />
+		<script type="text/javascript" src="{{host}}/web3.min.js"></script>
+		
 	</head>
 	<body>
 		<header>
@@ -14,6 +16,34 @@
 		</header>
 	<main>
 		<p>This will be the lobby page</p>
+		  <button onclick="init()">Click me</button> 
 	</main>
 	</body>
+	<script>
+	const init = async () => {
+		let provider = window.ethereum;
+		if (typeof provider !== "undefined") {
+		// Ensure metamask is installed
+		provider
+			.request({ method: "eth_requestAccounts" })
+			.then((accounts) => {
+				selectedAccount = accounts[0];
+				console.log(`selected account ${selectedAccount}`);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+		}
+		window.ethereum.on("accountsChanged", function(accounts) {
+			selectedAccount = accounts[0];
+			console.log(`selected account changed to ${selectedAccount}`);
+		});
+		const web3 = new Web3(provider);
+		// const networkId = await web3.eth.net.getId();
+		// didn't need to provide the abi
+		// testContract = new web3.eth.Contract(Storage, "0x94e999AB1Ad5C740C693D682d559e25CcD61A100");
+		// initialised = true;
+	}
+	</script>
+	
 </html>
