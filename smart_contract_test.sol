@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 pragma solidity >=0.7.0 <0.9.0;
 
 
 contract Four_In_A_Chain {
     
-
 	/// EVENTS ///
 	event GameStarted(address indexed player1, address indexed player2);
-    event playerTurn(address indexed player1, address indexed player2);
-    event Error(address player1, string error);
+    //Can we remove this two ?
+    //event playerTurn(address indexed player1, address indexed player2);
+    //event Error(address player1, string error);
 	event MoveMade(address indexed player, uint ID, uint column);
 	event GameWon(address indexed winner, uint256 ID);
     event GameTied(uint256 ID);
@@ -17,7 +17,6 @@ contract Four_In_A_Chain {
     // Game-related variables
     uint256 public gameCount = 0;
     uint constant bet = 2 ether;
-    uint constant rewardFactor = 0;
     enum State {Initiated, InProgress, Ended}
     enum gameEnding{Win, Tie, Withdrawal, Timeout}
     mapping(uint => Game) games;
@@ -37,8 +36,8 @@ contract Four_In_A_Chain {
 
     modifier yourTurn(uint ID) {
         Game storage g = games[ID];
-        require(msg.sender == g.player1 || msg.sender == g.player2, "You're not part of this game!");
         require(g.gameState == State.InProgress, "Game has not yet started or has ended already!");
+        require(msg.sender == g.player1 || msg.sender == g.player2, "You're not part of this game!");
         if (g.isPlayer1Turn == true) {
             require(msg.sender == g.player1, "It's player 1 turn");
         }
@@ -63,6 +62,7 @@ contract Four_In_A_Chain {
     function getBoard(uint ID) public view returns (uint[7][6] memory board) {
         return games[ID].board;
     }
+
     // created this function to understand the positions in the board
     function fillBoard(uint ID, uint row, uint col, uint val) public {
         Game storage g = games[ID];
@@ -77,9 +77,9 @@ contract Four_In_A_Chain {
         g.player2=p2;
         g.gameState=State.Initiated;
         g.chipsCount=0;
+        g.timeout = block.timestamp+timeToPlay;
     }
 
-    //Slight "problem" : as yourTurn comes before require State.InProgress, will get error message that it's not your turn when game has ended.
     function makeMove(uint ID, uint col) public yourTurn(ID) {
         Game storage g = games[ID];
         require(col >= 0 && col <= 6, "Out of board bounds! Enter a number between 0 and 6");
@@ -104,9 +104,8 @@ contract Four_In_A_Chain {
             emit MoveMade(g.player2, g.gameID, col);
         }
         checkForWinner(row, col, ID);
-        // added this line to the fillBoard function
-        //g.chipsCount++;
-        if(g.chipsCount>=42){
+ 
+        if(g.chipsCount>=42 && g.gameState != State.Ended){
             gameIsTied(ID);
         }
         g.timeout = block.timestamp+timeToPlay;
@@ -252,7 +251,6 @@ contract Four_In_A_Chain {
         }
     }
 
-
     function gameIsTied (uint id) internal{
         endOfGameTransaction(id, gameEnding.Tie);
     }
@@ -261,12 +259,13 @@ contract Four_In_A_Chain {
         endOfGameTransaction(id, gameEnding.Withdrawal);
     }
 
-    //Alternative to having something automatically done as it cannot be done (..?)
+    //Alternative to having something automatically done as it cannot be done
     //Function that a player has to call himself when he thinks the other is taking too much time.
     //Time for timeout is reset at each move. 
     function askForTimeout(uint id) public {
         Game storage g = games[id];
-        console.log("The timeout time is %s, we are at timestamp %s", g.timeout, block.timestamp);
+        require(g.gameState != State.Ended, 
+            "The game is over already !");
         require(msg.sender==g.player1 && g.isPlayer1Turn==false || msg.sender==g.player2 && g.isPlayer1Turn==true,
             "It's your turn to play");
         require(g.timeout <= block.timestamp, 
@@ -274,6 +273,7 @@ contract Four_In_A_Chain {
         endOfGameTransaction(id, gameEnding.Timeout);
     }
 
+    //Last function. Emits the diverse game finish events as well as put the state as Ended
     function endOfGameTransaction(uint id, gameEnding e) internal {
         Game storage g = games[id];
         if(e==gameEnding.Withdrawal){
