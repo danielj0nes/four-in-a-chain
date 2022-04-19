@@ -7,12 +7,9 @@ contract Four_In_A_Chain {
     
 	/// EVENTS ///
 	event GameStarted(address indexed player1, address indexed player2);
-    //Can we remove this two ?
-    //event playerTurn(address indexed player1, address indexed player2);
-    //event Error(address player1, string error);
 	event MoveMade(address indexed player, uint ID, uint column);
 	event GameWon(address indexed winner, uint256 ID);
-    event GameTied(uint256 ID);
+    	event GameTied(uint256 ID);
 
     // Game-related variables
     uint256 public gameCount = 0;
@@ -20,7 +17,7 @@ contract Four_In_A_Chain {
     enum State {Initiated, InProgress, Ended}
     enum gameEnding{Win, Tie, Withdrawal, Timeout}
     mapping(uint => Game) games;
-    uint private timeToPlay = 500;
+    uint private timeToPlay = 60;
 
     // Randomness variables (may not need all of them)
     address private minerHash;
