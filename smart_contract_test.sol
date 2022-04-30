@@ -5,11 +5,11 @@ pragma solidity >=0.7.0 <0.9.0;
 
 contract Four_In_A_Chain {
 
-	// Events
-	event GameStarted(address indexed player1, address indexed player2);
-	event MoveMade(address indexed player, uint ID, uint column);
-	event GameWon(address indexed winner, uint256 ID);
-    	event GameTied(uint256 ID);
+    // Events
+    event GameStarted(address indexed player1, address indexed player2);
+    event MoveMade(address indexed player, uint ID, uint column);
+    event GameWon(address indexed winner, uint256 ID);
+    event GameTied(uint256 ID);
 
     // Game-related variables
     uint256 internal gameCount = 0;
@@ -17,11 +17,8 @@ contract Four_In_A_Chain {
     enum State {Initiated, InProgress, Ended}
     enum gameEnding{Win, Tie, Withdrawal, Timeout, NoOpponent}
     mapping(uint => Game) games;
-<<<<<<< HEAD
     uint private timeToPlay = 60 seconds;
-=======
-    uint private timeToPlay = 60;
->>>>>>> 041227bcf54881004ad19c897311881f90c44016
+
 
     // Randomness variables (may not need all of them)
     address private minerHash;
