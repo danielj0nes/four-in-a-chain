@@ -4,24 +4,28 @@ pragma solidity >=0.7.0 <0.9.0;
 
 
 contract Four_In_A_Chain {
-    
-	/// EVENTS ///
+
+	// Events
 	event GameStarted(address indexed player1, address indexed player2);
 	event MoveMade(address indexed player, uint ID, uint column);
 	event GameWon(address indexed winner, uint256 ID);
     	event GameTied(uint256 ID);
 
     // Game-related variables
-    uint256 public gameCount = 0;
+    uint256 internal gameCount = 0;
     uint constant bet = 2 ether;
     enum State {Initiated, InProgress, Ended}
-    enum gameEnding{Win, Tie, Withdrawal, Timeout}
+    enum gameEnding{Win, Tie, Withdrawal, Timeout, NoOpponent}
     mapping(uint => Game) games;
+<<<<<<< HEAD
+    uint private timeToPlay = 60 seconds;
+=======
     uint private timeToPlay = 60;
+>>>>>>> 041227bcf54881004ad19c897311881f90c44016
 
     // Randomness variables (may not need all of them)
     address private minerHash;
-    uint public blockNum;
+    uint internal blockNum;
     bytes32 private blockHash;
     uint256 private randNum;
 
@@ -30,7 +34,6 @@ contract Four_In_A_Chain {
         require(msg.value == bet, "Betting amount is 2 ether");
         _;
     }
-
     modifier yourTurn(uint ID) {
         Game storage g = games[ID];
         require(g.gameState == State.InProgress, "Game has not yet started or has ended already!");
@@ -66,7 +69,9 @@ contract Four_In_A_Chain {
         g.board[row][col] = val;
         g.chipsCount++;
     }
-
+    //Creates a new game. Is called by the first player who initiates a game.
+    //g.player2 is filled with address(0) at first, and replace by the actual address of the second player
+    //when she joins the already created game.
     function addGame(address p1, address p2) internal {
         gameCount++;
         Game storage g = games[gameCount];
@@ -74,7 +79,7 @@ contract Four_In_A_Chain {
         g.player2=p2;
         g.gameState=State.Initiated;
         g.chipsCount=0;
-        g.timeout = block.timestamp+timeToPlay;
+        //g.timeout = block.timestamp+timeToPlay;
     }
 
     function makeMove(uint ID, uint col) public yourTurn(ID) {
@@ -101,7 +106,7 @@ contract Four_In_A_Chain {
             emit MoveMade(g.player2, g.gameID, col);
         }
         checkForWinner(row, col, ID);
- 
+        //Check for a tie
         if(g.chipsCount>=42 && g.gameState != State.Ended){
             gameIsTied(ID);
         }
@@ -147,7 +152,7 @@ contract Four_In_A_Chain {
         return g.gameID;
     }
 
-    //Call the functions to check each direction (4 are needed)
+    //Call the functions to check for a win in the 4 possible directions
     function checkForWinner(uint chip_row, uint chip_col, uint id) internal {
         Game storage g = games[id];
         horizontalCheck(chip_row, chip_col, id);
@@ -164,7 +169,7 @@ contract Four_In_A_Chain {
 
     /*Each function, starting from the location of the last played chip :
      1. Goes to the chip from the same player which is the furthest away possible in a direction and count chips
-     2. Goes the opposite direction and count chips
+     2. Back to the same starting location, goes the opposite direction the and count chips
      3. If there is 4 chips or more, call the endOfGame function.
     */
     function horizontalCheck(uint r, uint c, uint id) internal {
@@ -252,25 +257,53 @@ contract Four_In_A_Chain {
         endOfGameTransaction(id, gameEnding.Tie);
     }
 
+    /*Different usages of the quitGame function :
+    1. to quit the game if no opponent has been found. The player is refunded.
+    2. To quit game if your opponent is timeout
+        When a player sees that the other is taking too much time, he can quit and wins the game.
+        Time for timeout is reset at each move.
+    3. To withdraw.
+        If a player quits the game when it is in progress and the other player is not intime out,
+        it is considered a withdrawal. The other player wins.
+    */
+    function quitGame(uint id) public {
+        Game storage g = games[id];
+        require(g.gameState != State.Ended,
+            "The game is over already !");
+        if (g.gameState == State.Initiated){
+            endOfGameTransaction(id, gameEnding.NoOpponent);
+        }
+        else if (g.gameState == State.InProgress
+        && g.timeout <= block.timestamp
+        && msg.sender==g.player1 && g.isPlayer1Turn==false || msg.sender==g.player2 && g.isPlayer1Turn==true){
+            endOfGameTransaction(id, gameEnding.Timeout);
+        }
+        else {
+            endOfGameTransaction(id, gameEnding.Withdrawal);
+        }
+    }
+
+ /* TO REMOVE if quitGame is okay
     function withdraw(uint id) public yourTurn(id) {
         endOfGameTransaction(id, gameEnding.Withdrawal);
     }
 
     //Alternative to having something automatically done as it cannot be done
     //Function that a player has to call himself when he thinks the other is taking too much time.
-    //Time for timeout is reset at each move. 
+    //Time for timeout is reset at each move.
     function askForTimeout(uint id) public {
         Game storage g = games[id];
-        require(g.gameState != State.Ended, 
+        require(g.gameState != State.Ended,
             "The game is over already !");
         require(msg.sender==g.player1 && g.isPlayer1Turn==false || msg.sender==g.player2 && g.isPlayer1Turn==true,
             "It's your turn to play");
-        require(g.timeout <= block.timestamp, 
+        require(g.timeout <= block.timestamp,
             "Please be a bit more patient...");
         endOfGameTransaction(id, gameEnding.Timeout);
     }
+*/
 
-    //Last function. Emits the diverse game finish events as well as put the state as Ended
+    //Last function. Emits the diverse game finish events, puts the game State as Ended and transfers the bets
     function endOfGameTransaction(uint id, gameEnding e) internal {
         Game storage g = games[id];
         if(e==gameEnding.Withdrawal){
@@ -301,6 +334,12 @@ contract Four_In_A_Chain {
             g.gameState = State.Ended;
             emit GameWon(g.gameWinner, g.gameID);
             g.gameWinner.transfer(2*bet);
+        }
+        else if (e == gameEnding.NoOpponent){
+            g.gameState = State.Ended;
+            address payable lonelyPlayer = payable(g.player1);
+            emit GameWon(lonelyPlayer, g.gameID);
+            lonelyPlayer.transfer(bet);
         }
     }
 
