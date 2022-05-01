@@ -1,11 +1,13 @@
-import Web3 from "web3";
-import Storage from "../contracts/testcontract_abi.json";
-
 let selectedAccount;
 let testContract;
+let testcontract;
 let initialised = false;
 
-export const init = async () => {
+fetch("testcontract_abi.json")
+  .then(res => res.json())
+  .then(obj => testcontract = obj)
+
+const init = async () => {
     let provider = window.ethereum;
     if (typeof provider !== "undefined") {
       // Ensure metamask is installed
@@ -25,17 +27,18 @@ export const init = async () => {
     });
     const web3 = new Web3(provider);
     // const networkId = await web3.eth.net.getId();
-    // didn't need to provide the abi
-    testContract = new web3.eth.Contract(Storage, "0x94e999AB1Ad5C740C693D682d559e25CcD61A100");
+    testContract = new web3.eth.Contract(testcontract, "0x94e999AB1Ad5C740C693D682d559e25CcD61A100");
     initialised = true;
+    console.log(testContract);
 }
 
-export const storeP = async () => {
+const storeP = async () => {
     if (!initialised) {
         await init();
     }
-    return testContract.methods
-        .store("1")
-        .send({from: "0x94e999AB1Ad5C740C693D682d559e25CcD61A100"})
-};
+    testContract.methods.store("1").send({from: "0x94e999AB1Ad5C740C693D682d559e25CcD61A100"}).on("receipt", function(receipt){
+        console.log(receipt)
+    })
+        
 
+};

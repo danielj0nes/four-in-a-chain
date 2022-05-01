@@ -28,8 +28,9 @@ async function getHandlebarData(ctx, next) {
 }
 
 // Serve the contents of the public folder for e.g., css stylesheets and assets
-app.use(serve("node_modules/web3/dist"))
-app.use(serve("public"))
+app.use(serve("node_modules/web3/dist"));
+app.use(serve("public"));
+app.use(serve("../contracts"))
 
 app.use(session(app));
 app.use(views("views", { extension: "handlebars" }, {map: { handlebars: "handlebars" }}));

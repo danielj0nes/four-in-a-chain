@@ -377,3 +377,41 @@
 00:56:39.024354 table@compaction committed F-1 S-34KiB Ke·0 D·1219 T·48.456308ms
 00:56:39.024531 table@remove removed @84
 00:56:39.024578 table@remove removed @85
+=============== May 1, 2022 (CEST) ===============
+23:28:01.474575 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+23:28:01.475481 version@stat F·[0 2] S·2MiB[0B 2MiB] Sc·[0.00 0.02]
+23:28:01.475522 db@open opening
+23:28:01.475571 journal@recovery F·1
+23:28:01.476271 journal@recovery recovering @87
+23:28:01.480037 memdb@flush created L0@91 N·647 S·21KiB "loc..seq,v320060":"n:\xfb..ail,v320529"
+23:28:01.480744 version@stat F·[1 2] S·2MiB[21KiB 2MiB] Sc·[0.25 0.02]
+23:28:01.489376 db@janitor F·6 G·1
+23:28:01.489405 db@janitor removing table-86
+23:28:01.489447 db@open done T·13.903363ms
+23:28:01.547573 table@compaction L0·1 -> L1·2 S·2MiB Q·320688
+23:28:01.589477 table@build created L1@94 N·52305 S·2MiB "loc..seq,v320060":"n:\xed..ail,v305620"
+23:28:01.594579 table@build created L1@95 N·4357 S·172KiB "n:\xed..ing,v277955":"version,v1"
+23:28:01.594643 version@stat F·[0 2] S·2MiB[0B 2MiB] Sc·[0.00 0.02]
+23:28:01.596201 table@compaction committed F-1 S-11KiB Ke·0 D·331 T·48.563914ms
+23:28:01.596384 table@remove removed @89
+23:28:01.596622 table@remove removed @90
+23:55:36.238686 db@close closing
+23:55:36.238871 db@close done T·184.419µs
+=============== May 1, 2022 (CEST) ===============
+23:56:23.687649 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+23:56:23.687748 version@stat F·[0 2] S·2MiB[0B 2MiB] Sc·[0.00 0.02]
+23:56:23.687789 db@open opening
+23:56:23.687832 journal@recovery F·1
+23:56:23.688555 journal@recovery recovering @92
+23:56:23.706455 memdb@flush created L0@96 N·15656 S·388KiB "loc..seq,v320714":"n:\xff..ong,v330440"
+23:56:23.707195 version@stat F·[1 2] S·2MiB[388KiB 2MiB] Sc·[0.25 0.02]
+23:56:23.713634 db@janitor F·6 G·1
+23:56:23.713655 db@janitor removing table-91
+23:56:23.713704 db@open done T·25.908097ms
+23:56:23.737650 table@compaction L0·1 -> L1·2 S·2MiB Q·336345
+23:56:23.778547 table@build created L1@99 N·52384 S·2MiB "loc..seq,v320714":"n:\xda..ail,v268431"
+23:56:23.787500 table@build created L1@100 N·9165 S·361KiB "n:\xda..ail,v268429":"version,v1"
+23:56:23.787552 version@stat F·[0 2] S·2MiB[0B 2MiB] Sc·[0.00 0.02]
+23:56:23.788981 table@compaction committed F-1 S-199KiB Ke·0 D·10769 T·51.280367ms
+23:56:23.789196 table@remove removed @94
+23:56:23.789253 table@remove removed @95

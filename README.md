@@ -14,6 +14,7 @@ In our implementation, users can offer a currency stake (e.g., 1 ETH) that anoth
 ## Useful
 * https://gitlab.ifi.uzh.ch/scheid/bcoln/tree/master/Solidity - Getting started guide
 * Configured the testnet as per the intructions above, two default account passwords are: *123456*
+* https://github.com/Web3Modal/web3modal-vanilla-js-example/blob/master/example.js
 ## Building the project
 1. First clone the project and run "npm install"
 1. Launch the start_testnet.sh script
