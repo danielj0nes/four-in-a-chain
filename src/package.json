@@ -1,0 +1,31 @@
+{
+  "name": "four-in-a-chain",
+  "version": "0.0.1",
+  "description": "Four in a Chain project - Group Hera - UZH",
+  "author": "Daniel Jones",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "contracts": "file:../contracts/",
+    "handlebars": "^4.7.7",
+    "koa": "^2.13.4",
+    "koa-body": "^4.2.0",
+    "koa-mount": "^4.0.0",
+    "koa-router": "^10.1.1",
+    "koa-session": "^6.2.0",
+    "koa-static": "^5.0.0",
+    "koa-views": "^8.0.0",
+    "web3": "^1.7.3"
+  },
+  "scripts": {
+    "start": "nodemon --experimental-json-modules index.js",
+    "build": "",
+    "test": "",
+    "eject": ""
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "main": "index.js",
+  "keywords": []
+}
