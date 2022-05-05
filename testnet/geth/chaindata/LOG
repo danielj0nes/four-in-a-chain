@@ -299,3 +299,27 @@
 23:56:23.674401 db@janitor F·5 G·1
 23:56:23.674423 db@janitor removing table-63
 23:56:23.674472 db@open done T·19.229924ms
+=============== May 5, 2022 (CEST) ===============
+12:53:42.370332 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+12:53:42.371076 version@stat F·[1 1] S·818KiB[279KiB 538KiB] Sc·[0.25 0.01]
+12:53:42.371122 db@open opening
+12:53:42.371182 journal@recovery F·1
+12:53:42.373833 journal@recovery recovering @68
+12:53:42.379924 memdb@flush created L0@70 N·1840 S·95KiB "H\x00\x1f..e\x94\xa2,v19774":"unc..own,v19498"
+12:53:42.381219 version@stat F·[2 1] S·913KiB[374KiB 538KiB] Sc·[0.50 0.01]
+12:53:42.388581 db@janitor F·5 G·0
+12:53:42.388629 db@open done T·17.497682ms
+13:03:45.102692 db@close closing
+13:03:45.102785 db@close done T·93.27µs
+=============== May 5, 2022 (CEST) ===============
+13:04:58.802725 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+13:04:58.802823 version@stat F·[2 1] S·913KiB[374KiB 538KiB] Sc·[0.50 0.01]
+13:04:58.802863 db@open opening
+13:04:58.802916 journal@recovery F·1
+13:04:58.804765 journal@recovery recovering @71
+13:04:58.808639 memdb@flush created L0@73 N·948 S·54KiB "\x10\xb2\xed..(\xb7\xd9,v22284":"\xbc\x81q..)>\x10,v22279"
+13:04:58.810028 version@stat F·[3 1] S·968KiB[429KiB 538KiB] Sc·[0.75 0.01]
+13:04:58.816460 db@janitor F·6 G·0
+13:04:58.816505 db@open done T·13.620256ms
+13:08:36.543971 db@close closing
+13:08:36.544001 db@close done T·30.16µs

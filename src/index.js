@@ -3,11 +3,6 @@ import serve from "koa-static";
 import views from "koa-views";
 import session from "koa-session";
 
-import path from "path";
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 import router from "./routes/route_index.js";
 
 const app = new Koa();
@@ -27,7 +22,7 @@ async function getHandlebarData(ctx, next) {
 	await next();
 }
 
-// Serve the contents of the public folder for e.g., css stylesheets and assets
+// Local folders to serve (e.g., smart contracts) and access across other files
 app.use(serve("node_modules/web3/dist"));
 app.use(serve("public"));
 app.use(serve("../contracts"))
