@@ -27,7 +27,7 @@ const init = async () => {
     });
     const web3 = new Web3(provider);
     // const networkId = await web3.eth.net.getId();
-    testContract = new web3.eth.Contract(testcontract, "0x94e999AB1Ad5C740C693D682d559e25CcD61A100");
+    testContract = new web3.eth.Contract(testcontract, selectedAccount);
     initialised = true;
     console.log(testContract);
 }
@@ -36,7 +36,7 @@ const storeP = async () => {
     if (!initialised) {
         await init();
     }
-    testContract.methods.store("1").send({from: "0x94e999AB1Ad5C740C693D682d559e25CcD61A100"}).on("receipt", function(receipt){
+    testContract.methods.store("1").send({from: selectedAccount, gas: "200000"}).on("receipt", function(receipt){
         console.log(receipt)
     })
         
