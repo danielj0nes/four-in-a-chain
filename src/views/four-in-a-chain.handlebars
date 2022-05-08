@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title></title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{host}}/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
@@ -11,19 +11,19 @@
   <body>
     <div class="base">
       <div class="header">
-        <img src="images/logo.png" alt="Logo of the company HERA" class="logo">
+        <img src="{{host}}/logo.png" alt="Group HERA Logo" class="logo">
         <button class="connection-button">Connect wallet</button>
       </div>
       <div class="game">
         <div class="left">
-          <div class="current-player">The current player:  <span id="currentPlayer">1</div>
+          <div class="current-player">Player <span id="currentPlayer">1 to play</div> 
           <div class="information-box">
-            <div class="information-box-text">Information box</div>
-            <div class="game-status">The game is on!</div>
+            <div class="information-box-text">Game Info</div>
+            <div class="game-status">The game has started</div>
           </div>
-          <div class="bet-info">The bet was 2 ETH</div>
-          <div class="timer">Time to make move <span class="time">1:00</span> </div>
-          <button class="quit-game-button">Quit game</button>
+          <div class="bet-info">Bet: 2 ETH</div>
+          <div class="timer">Make a move <span class="time">1:00</span> </div>
+          <button class="quit-game-button">Quit</button>
         </div>
         <div class="right">
           <div class="grid">
@@ -164,6 +164,6 @@
         </div>
       </div>
     </div>
-    <script src="index.js"></script>
+    <script type="text/javascript" src="{{host}}/game_logic.js"></script>
   </body>
 </html>
