@@ -25,6 +25,8 @@ async function getHandlebarData(ctx, next) {
 // Local folders to serve (e.g., smart contracts) and access across other files
 app.use(serve("node_modules/web3/dist"));
 app.use(serve("public"));
+app.use(serve("images"));
+
 app.use(serve("../contracts"))
 
 app.use(session(app));

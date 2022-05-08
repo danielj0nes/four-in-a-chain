@@ -6,7 +6,6 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "contracts": "file:../contracts/",
     "handlebars": "^4.7.7",
     "koa": "^2.13.4",
     "koa-body": "^4.2.0",

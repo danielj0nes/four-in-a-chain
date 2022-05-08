@@ -1,5 +1,3 @@
-"Use strict";
-
 const gridEl = document.querySelector('.grid');
 gridEl.addEventListener('click', handleClick);
 const boxes = gridEl.querySelectorAll('.box');
@@ -127,7 +125,7 @@ function handleClick(ev) {
   const row = Math.floor(boxIndex / 7);
   console.log(col, row);
   placeToken(col, row);
-  displayCurrentPlayer.innerHTML = currentPlayer;
+  displayCurrentPlayer.textContent = `${currentPlayer} to play`;
 }
 
 function secondsToMmSs(totalSeconds) {
@@ -141,10 +139,11 @@ function secondsToMmSs(totalSeconds) {
 function stop(winner) {
   let winnerSign = "";
   if (winner == 1) {
-    winnerSign = "Player One Wins!";
+    winnerSign = "Player One wins!";
   } else {
-    winnerSign = "Player Two Wins!";
+    winnerSign = "Player Two wins!";
   }
+  
   renderGameStatus(winnerSign);
   isStopped = true;
   stopTimer();
@@ -177,7 +176,7 @@ function stopTimer() {
 intervalId = setInterval(countTime, 1000);
 
 document.querySelector('.quit-game-button').addEventListener('click', () => {
-  if (confirm("Do you really want to quit the game?")) {
-    location.href = "entry-page.html";
+  if (confirm("Are you sure you want to quit?")) {
+    location.href = "lobby";
   }
 });

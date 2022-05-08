@@ -1,11 +1,11 @@
 let selectedAccount;
-let testContract;
-let testcontract;
+let gameContract;
+let gameAbi;
 let initialised = false;
 
-fetch("testcontract_abi.json")
+fetch("four-in-a-chain_abi.json")
   .then(res => res.json())
-  .then(obj => testcontract = obj)
+  .then(obj => gameAbi = obj)
 
 const init = async () => {
     let provider = window.ethereum;
@@ -27,18 +27,19 @@ const init = async () => {
     });
     const web3 = new Web3(provider);
     // const networkId = await web3.eth.net.getId();
-    testContract = new web3.eth.Contract(testcontract, "0x94e999AB1Ad5C740C693D682d559e25CcD61A100");
+    gameContract = new web3.eth.Contract(gameAbi, selectedAccount);
     initialised = true;
-    console.log(testContract);
+    console.log(gameContract);
 }
 
-const storeP = async () => {
+const testContract = async () => {
     if (!initialised) {
         await init();
     }
-    testContract.methods.store("1").send({from: "0x94e999AB1Ad5C740C693D682d559e25CcD61A100"}).on("receipt", function(receipt){
+    console.log(gameContract.methods);
+    /*
+    gameContract.methods.store("1").send({from: selectedAccount, gas: "200000"}).on("receipt", function(receipt){
         console.log(receipt)
-    })
-        
-
+        })
+    */ 
 };
