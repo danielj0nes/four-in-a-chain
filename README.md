@@ -12,6 +12,7 @@ In our implementation, users can offer a currency stake (e.g., 1 ETH) that anoth
 * Web server/routing using Koa
 * Web blockchain functionality using web3.js
 ## Useful
+* When using Metamask, after reverting the testnet folder to the previous commit, you have to clear the transaction history from settings - advanced - reset account, otherwise no new transactions will go through
 * https://gitlab.ifi.uzh.ch/scheid/bcoln/tree/master/Solidity - Getting started guide
 * Configured the testnet as per the intructions above, two default account passwords are: *123456*
 * https://github.com/Web3Modal/web3modal-vanilla-js-example/blob/master/example.js

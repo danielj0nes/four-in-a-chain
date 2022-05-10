@@ -40,16 +40,10 @@ const testContract = async () => {
     console.log(gameContract.methods);
 
     /*
-    let options = {
-        fromBlock: 0
-    };
-    
-    let subscription = web3.eth.subscribe('logs', options,(err,event) => {
-        if (!err)
-        console.log(event)
+    let subscription = web3.eth.subscribe('GameStarted', {}, function(error, result){
+        if (!error)
+            console.log(result);
     });
-
-    subscription.on('GameStarted', event => console.log(event));
     */
 
     var returnvalue = await gameContract.methods.joinGame().send({from: selectedAccount, gas: "200000", value:"2000000000000000000"}).on("receipt", function(receipt){
@@ -57,5 +51,5 @@ const testContract = async () => {
         }).on('error', function(error, receipt) {
             console.log(error);
         });
-    console.log(returnvalue)
+    console.log(returnvalue) //seems to be same as receipt
 };
