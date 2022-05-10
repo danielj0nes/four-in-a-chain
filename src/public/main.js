@@ -26,8 +26,9 @@ const init = async () => {
         console.log(`selected account changed to ${selectedAccount}`);
     });
     const web3 = new Web3(provider);
-    // const networkId = await web3.eth.net.getId();
-    gameContract = new web3.eth.Contract(gameAbi, selectedAccount);
+    //const networkId = await web3.eth.net.getId();
+    //const networkData = Four_In_A_Chain.networks[networkId]
+    gameContract = new web3.eth.Contract(gameAbi, "0x39E19305b3314dbE8CC521f0d9369fA113b0D1bc");
     initialised = true;
     console.log(gameContract);
 }
@@ -37,9 +38,24 @@ const testContract = async () => {
         await init();
     }
     console.log(gameContract.methods);
+
     /*
-    gameContract.methods.store("1").send({from: selectedAccount, gas: "200000"}).on("receipt", function(receipt){
+    let options = {
+        fromBlock: 0
+    };
+    
+    let subscription = web3.eth.subscribe('logs', options,(err,event) => {
+        if (!err)
+        console.log(event)
+    });
+
+    subscription.on('GameStarted', event => console.log(event));
+    */
+
+    var returnvalue = await gameContract.methods.joinGame().send({from: selectedAccount, gas: "200000", value:"2000000000000000000"}).on("receipt", function(receipt){
         console.log(receipt)
-        })
-    */ 
+        }).on('error', function(error, receipt) {
+            console.log(error);
+        });
+    console.log(returnvalue)
 };
