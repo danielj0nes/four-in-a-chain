@@ -1,0 +1,213 @@
+html {
+  box-sizing: border-box;
+  font-family: Montserrat, sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  background-color: black;
+}
+
+.base {
+  margin: 0 auto;
+  max-width: 1024px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 98px;
+}
+
+.logo {
+  padding-left: 10px;
+}
+
+.connected {
+  margin-right: 20px;
+  padding: 10px 10px;
+  color: white;
+  text-align: center;
+  position: relative;
+  font-weight: 700;
+  animation: glow 1s ease-in-out infinite alternate;
+
+  align-self: center;
+  display: inline-block;
+  border: none;
+  display: none;
+}
+
+@-webkit-keyframes glow {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #BB86FC, 0 0 40px #BB86FC, 0 0 50px #BB86FC, 0 0 60px #BB86FC, 0 0 70px #BB86FC;
+  }
+
+  to {
+    text-shadow: 0 0 20px #fff, 0 0 30px #03DAC5, 0 0 40px #03DAC5, 0 0 50px #03DAC5, 0 0 60px #03DAC5, 0 0 70px #03DAC5, 0 0 80px #03DAC5;
+  }
+}
+
+
+.connection-button {
+  margin-right: 20px;
+  padding: 10px 10px;
+
+  position: relative;
+
+  align-self: center;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #0000;
+  border: none;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+}
+
+.connection-button:before {
+    content: '';
+    background: linear-gradient(45deg, #03DAC5, #BB86FC, #03DAC5, #BB86FC, #03DAC5, #BB86FC, #03DAC5, #BB86FC, #03DAC5);
+    position: absolute;
+    top: -2px;
+    left:-2px;
+    background-size: 400%;
+    z-index: -1;
+    filter: blur(5px);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    animation: glowing 20s linear infinite;
+    opacity: 0;
+    transition: opacity .3s ease-in-out;
+    border-radius: 10px;
+}
+
+.connection-button:active {
+    color: #000
+}
+
+.connection-button:active:after {
+    background: transparent;
+}
+
+.connection-button:hover:before {
+    opacity: 1;
+}
+
+.connection-button:after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    left: 0;
+    top: 0;
+    border-radius: 10px;
+}
+
+.find-opponent-block {
+  margin: 0px auto;
+  max-width: 550px;
+  height: 280px;
+  background-image: url("images/back.png");
+  background-size: 480px 260px;
+  background-repeat: no-repeat;
+  background-position: top;
+  padding-top: 30px;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: white;
+  text-align: center;
+  padding-top: 80px;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 22px;
+  margin: 0px auto;
+  width: 400px;
+  height: 200px;
+  background: rgba(14, 14, 14, 0.99);
+  border-radius: 8px;
+  z-index: -1;
+}
+
+.wallet {
+  color: white;
+  text-align: center;
+  padding-top: 90px;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 15px;
+  margin: 0px auto;
+  width: 400px;
+  height: 200px;
+}
+
+.find-opponent-button {
+  margin: 0 auto;
+  padding: 10px 10px;
+
+  position: relative;
+  margin-bottom: 20px;
+  align-self: center;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #0000;
+  border: none;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+}
+
+.find-opponent-button:active {
+  background:  linear-gradient(45deg, #03DAC5, #BB86FC, #03DAC5, #BB86FC, #03DAC5, #BB86FC, #03DAC5, #BB86FC, #03DAC5);
+  filter: blur(8px);
+  animation: glowing 20s linear infinite;
+  opacity: 0;
+  transition: opacity .5s ease-in-out;
+}
+
+.button__text {
+  color: #ffffff;
+  transition: all 0.2s;
+}
+
+.button--loading .button__text {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.button--loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  border: 4px solid transparent;
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: button-loading-spinner 1s ease infinite;
+}
+
+@keyframes button-loading-spinner {
+  from {
+    transform: rotate(0turn);
+  }
+
+  to {
+    transform: rotate(1turn);
+  }
+}
