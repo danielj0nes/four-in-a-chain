@@ -2,7 +2,7 @@ let selectedAccount;
 let gameContract;
 let gameAbi;
 let initialised = false;
-
+let walletDiv;
 fetch("four-in-a-chain_abi.json")
   .then(res => res.json())
   .then(obj => gameAbi = obj)
@@ -15,6 +15,8 @@ const init = async () => {
         .request({ method: "eth_requestAccounts" })
         .then((accounts) => {
             selectedAccount = accounts[0];
+            walletDiv = document.getElementById('wallet-id');
+            walletDiv.textContent = `${selectedAccount}`
             console.log(`selected account ${selectedAccount}`);
         })
         .catch((err) => {
@@ -23,6 +25,8 @@ const init = async () => {
     }
     window.ethereum.on("accountsChanged", function(accounts) {
         selectedAccount = accounts[0];
+        walletDiv = document.getElementById('wallet-id');
+        walletDiv.textContent = `${selectedAccount}`
         console.log(`selected account changed to ${selectedAccount}`);
     });
     const web3 = new Web3(provider);
