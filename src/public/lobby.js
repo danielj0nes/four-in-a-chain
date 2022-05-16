@@ -13,14 +13,14 @@ btn.addEventListener('click', () => {
 
 playBtn.addEventListener('click', () => {
   if (walletIdDiv.textContent) {
-    fetch('http://localhost:8888/lobby/opponent-search', {
+    fetch('/lobby/opponent-search', {
       headers: { "Content-Type": "application/json; charset=utf-8" },
       method: 'POST',
       body: JSON.stringify({
         walletId: walletIdDiv.textContent
       })
     })
-    fetch('http://localhost:8888/lobby/ready')
+    fetch('/lobby/ready')
       .then(res => res.json())
       .then(data => {
         // Once two wallets are connected
