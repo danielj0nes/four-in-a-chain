@@ -25,6 +25,7 @@ router.post("/opponent-search", async ctx => {
             playerInfo = {}
             playerInfo[connectedWallet] = "connected"
         }
+        ctx.body = {};
     } catch (err) {
         console.log(err);
     }
