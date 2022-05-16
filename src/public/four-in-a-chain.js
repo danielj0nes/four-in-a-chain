@@ -7,7 +7,8 @@ fetch("four-in-a-chain_abi.json")
   .then(res => res.json())
   .then(obj => gameAbi = obj)
 
-const checkAccountInGame = async (provider) => {
+// This only works for one concurrent game at a time
+const checkAccountInGame = async () => {
   fetch('/lobby/ready')
       .then(res => res.json())
       .then(data => {
