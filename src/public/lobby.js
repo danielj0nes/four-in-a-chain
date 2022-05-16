@@ -28,6 +28,7 @@ playBtn.addEventListener('click', () => {
           let wallet1 = Object.keys(data)[0];
           let wallet2 = Object.keys(data)[1];
           alert(`${wallet1} ${wallet2}`)
+          window.location.href = '/four-in-a-chain';
         } 
 
         else { alert("Waiting for an opponent") }
