@@ -46,8 +46,8 @@ contract Four_In_A_Chain {
 
     struct Game {
         uint gameID;
-		address player1;
-		address player2;
+	address player1;
+	address player2;
         uint[7][6] board;
         bool isPlayer1Turn;
         State gameState;
