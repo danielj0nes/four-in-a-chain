@@ -5,11 +5,6 @@ pragma solidity >=0.7.0 <0.9.0;
 
 contract Four_In_A_Chain {
 
-    // Events
-    event GameStarted(address indexed player1, address indexed player2);
-    event MoveMade(address indexed player, uint ID, uint column);
-    event GameWon(address indexed winner, uint256 ID);
-    event GameTied(uint256 ID);
 
     // Game-related variables
     uint256 internal gameCount = 0;
@@ -98,11 +93,9 @@ contract Four_In_A_Chain {
         }
         if (g.isPlayer1Turn == true) {
             g.isPlayer1Turn = false;
-            emit MoveMade(g.player1, g.gameID, col);
         }
         else {
             g.isPlayer1Turn = true;
-            emit MoveMade(g.player2, g.gameID, col);
         }
         checkForWinner(row, col, ID);
         //Check for a tie
@@ -147,7 +140,6 @@ contract Four_In_A_Chain {
             // change game state and start game
             g.gameState = State.InProgress;
             g.timeout=block.timestamp+timeToPlay;
-            emit GameStarted(g.player1,g.player2);
         }
         return g.gameID;
     }
@@ -309,21 +301,18 @@ contract Four_In_A_Chain {
         if(e==gameEnding.Withdrawal){
             msg.sender == g.player1? g.gameWinner=payable(g.player2) : g.gameWinner = payable(g.player1);
             g.gameState = State.Ended;
-            emit GameWon(g.gameWinner, g.gameID);
             g.gameWinner.transfer(2*bet);
         }
         else if (e == gameEnding.Tie){
             address payable tiedPlayer1 = payable(g.player1);
             address payable tiedPlayer2 = payable(g.player2);
             g.gameState = State.Ended;
-            emit GameTied(g.gameID);
             tiedPlayer1.transfer(bet);
             tiedPlayer2.transfer(bet);
         }
         else if (e == gameEnding.Win){
             g.gameWinner = payable(msg.sender);
             g.gameState = State.Ended;
-            emit GameWon(g.gameWinner, g.gameID);
             g.gameWinner.transfer(bet+bet*90/100);
             address payable gameLoser;
             msg.sender==g.player1? gameLoser = payable(g.player2) : gameLoser = payable(g.player1);
@@ -332,13 +321,11 @@ contract Four_In_A_Chain {
         else if (e == gameEnding.Timeout){
             msg.sender == g.player1? g.gameWinner=payable(g.player1) : g.gameWinner = payable(g.player2);
             g.gameState = State.Ended;
-            emit GameWon(g.gameWinner, g.gameID);
             g.gameWinner.transfer(2*bet);
         }
         else if (e == gameEnding.NoOpponent){
             g.gameState = State.Ended;
             address payable lonelyPlayer = payable(g.player1);
-            emit GameWon(lonelyPlayer, g.gameID);
             lonelyPlayer.transfer(bet);
         }
     }
