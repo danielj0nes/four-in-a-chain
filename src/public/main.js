@@ -4,6 +4,8 @@ let gameAbi;
 let initialised = false;
 let walletDiv;
 let gameByteCode;
+let contractInstance;
+
 fetch("four-in-a-chain-bytecode.json")
   .then(res => res.json())
   .then(obj => gameByteCode = obj)
@@ -37,37 +39,43 @@ const init = async () => {
         console.log(`selected account changed to ${selectedAccount}`);
     });
 
-    const web3 = new Web3(provider);
+    web3 = new Web3(provider);
     // First create the instance of the game contract using the ABI
     gameContract = new web3.eth.Contract(gameAbi, selectedAccount);
     // const networkId = await web3.eth.net.getId();
     initialised = true;
 }
 
-const initGame = async () => {
+const deployContract = async () => {
     // Create the deployed contract instance
     if (!initialised) {
         await init();
     }
-    let contractInstance = await gameContract.deploy({
+    contractInstance = await gameContract.deploy({
         data: gameByteCode["object"]
     })
     .send({
         from: selectedAccount
     })
     .then()
-    console.log(contractInstance.methods);
-    // Execute the initGame function of the contract
-    contractInstance.methods.initGame().send({
-        from: selectedAccount
+    console.log("Contract deployed successfully");
+}
+const joinGame = async () => {
+    web3.eth.handleRevert = true
+    let x = await contractInstance.methods.joinGame().send({
+        from: selectedAccount,
+        value: Web3.utils.toWei("2", "ether")
     })
     .on("receipt", function(receipt) {
         console.log(receipt);
     })
+    console.log(x)
+}
+    // Execute the initGame function of the contract
+    
 
     /*
     gameContract.methods.store("1").send({from: selectedAccount, gas: "200000"}).on("receipt", function(receipt){
         console.log(receipt)
         })
     */ 
-};

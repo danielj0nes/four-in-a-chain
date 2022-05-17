@@ -46,8 +46,8 @@ contract Four_In_A_Chain {
 
     struct Game {
         uint gameID;
-	address player1;
-	address player2;
+		address player1;
+		address player2;
         uint[7][6] board;
         bool isPlayer1Turn;
         State gameState;
@@ -287,7 +287,6 @@ contract Four_In_A_Chain {
     function withdraw(uint id) public yourTurn(id) {
         endOfGameTransaction(id, gameEnding.Withdrawal);
     }
-
     //Alternative to having something automatically done as it cannot be done
     //Function that a player has to call himself when he thinks the other is taking too much time.
     //Time for timeout is reset at each move.
