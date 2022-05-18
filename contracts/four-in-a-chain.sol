@@ -20,11 +20,8 @@ contract Four_In_A_Chain {
     uint private timeToPlay = 60 seconds;
 
 
-    // Randomness variables (may not need all of them)
-    address private minerHash;
+    // Randomness variable
     uint internal blockNum;
-    bytes32 private blockHash;
-    uint256 private randNum;
 
     // Modifiers
     modifier BetAmount {
@@ -55,13 +52,8 @@ contract Four_In_A_Chain {
         uint8 chipsCount;
         uint timeout;
     }
-    /* To remove once we're sure we do not need it
-    function getBoard(uint ID) public view returns (uint[7][6] memory board) {
-        return games[ID].board;
-    }
-    */
 
-    // created this function to understand the positions in the board
+    // initially created this function to understand the positions in the board
     function fillBoard(uint ID, uint row, uint col, uint val) internal {
         Game storage g = games[ID];
         g.board[row][col] = val;
@@ -78,7 +70,6 @@ contract Four_In_A_Chain {
         g.player2=p2;
         g.gameState=State.Initiated;
         g.chipsCount=0;
-        //g.timeout = block.timestamp+timeToPlay;
     }
 
     function makeMove(uint ID, uint col) public yourTurn(ID) {
@@ -112,21 +103,6 @@ contract Four_In_A_Chain {
         g.timeout = block.timestamp+timeToPlay;
     }
 
-    /* To remove once we're sure we do not need it
-    function gameStatus(uint ID) public view returns(string memory status){
-        Game storage g = games[ID];
-        if (g.gameState == State.Initiated) {
-            return "Initiated";
-        }
-        else if (g.gameState == State.InProgress) {
-            return "In Progress";
-        }
-        else if (g.gameState == State.Ended) {
-            return "Ended";
-        }
-    }
-    */
-
     function joinGame() public payable BetAmount returns(uint ID) {
         Game storage g = games[gameCount];
         if (gameCount == 0) {
@@ -140,9 +116,6 @@ contract Four_In_A_Chain {
             g.player2 = msg.sender;
             /// randomly choose first player to play
             blockNum = block.number;
-            //blockHash = blockhash(blockNum);
-            //minerHash = block.coinbase;
-            //randNum = uint(blockHash ^ bytes32(uint256(minerHash) << 96));
             g.isPlayer1Turn = (blockNum % 2) == 0;
             // change game state and start game
             g.gameState = State.InProgress;
@@ -282,25 +255,6 @@ contract Four_In_A_Chain {
             endOfGameTransaction(id, gameEnding.Withdrawal);
         }
     }
-
- /* TO REMOVE if quitGame is okay
-    function withdraw(uint id) public yourTurn(id) {
-        endOfGameTransaction(id, gameEnding.Withdrawal);
-    }
-    //Alternative to having something automatically done as it cannot be done
-    //Function that a player has to call himself when he thinks the other is taking too much time.
-    //Time for timeout is reset at each move.
-    function askForTimeout(uint id) public {
-        Game storage g = games[id];
-        require(g.gameState != State.Ended,
-            "The game is over already !");
-        require(msg.sender==g.player1 && g.isPlayer1Turn==false || msg.sender==g.player2 && g.isPlayer1Turn==true,
-            "It's your turn to play");
-        require(g.timeout <= block.timestamp,
-            "Please be a bit more patient...");
-        endOfGameTransaction(id, gameEnding.Timeout);
-    }
-*/
 
     //Last function. Emits the diverse game finish events, puts the game State as Ended and transfers the bets
     function endOfGameTransaction(uint id, gameEnding e) internal {
