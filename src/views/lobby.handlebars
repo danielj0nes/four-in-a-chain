@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
   <script type="text/javascript" src="{{host}}/web3.min.js"></script>
   <script type="text/javascript" src="{{host}}/main.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
   <div class="base">
@@ -20,17 +21,16 @@
       <div class="wallet" id="wallet-id"></div>
       <div id="connected-sign" class="connected">Connected</div>
       <button id="connect-btn" onclick="init()" class="connection-button">Connect wallet</button>
-      <button id="connect-btn" onclick="deployContract()" class="connection-button">Initiate game</button>
-      <button id="connect-btn" onclick="joinGame()" class="connection-button">Join game</button>
       
     </div>
     <div class="find-opponent-block">
       <div class="grid">
-        The bet is 2 ETH
+        Bet amount: 2 ETH
         {{!-- <a href="/four-in-a-chain"> --}}
-          <button type="button" class="find-opponent-button" id="find-opponent" onclick="">
-            <span class="button__text">Find opponent</span>
-          </button>
+        <div id="waiting-sign" class="connected">Waiting for an opponent</div>
+        <button class="connection-button" id="gameButton" onclick="joinGame()">
+          Join a game
+        </button>
         {{!-- </a> --}}
       </div>
     </div>

@@ -4,7 +4,6 @@ const boxes = gridEl.querySelectorAll('.box');
 const gameState = [];
 const displayCurrentPlayer = document.querySelector('#currentPlayer')
 let currentPlayer = 1;
-let time = 60;
 let intervalId = -1;
 
 let finalWinner = 0;
@@ -92,13 +91,30 @@ function findValidRow(col, row) {
   return -1;
 }
 
-function placeToken(col, row) {
+const makeMove = async (gameId, column) => {
+  await contractInstance.methods.makeMove(gameId, column).send({
+    from: selectedAccount
+  })
+  .on("receipt", function(receipt) {
+    console.log(receipt);
+  })
+  .on("error", function(error){
+    console.log(error)
+  })
+}
+
+async function placeToken(col, row) {
   const validRow = findValidRow(col, row);
   if (validRow < 0) {
     return;
   }
+  try {
+    await makeMove(currentGameId, col);
+  } catch {
+    console.log("Contract functionality error")
+    return
+  }
   gameState[validRow][col] = currentPlayer;
-  console.log(gameState);
   const box = boxes[7 * validRow + col];
   box.classList.add(`player-${currentPlayer}`);
   const winner = checkWinner();
@@ -107,9 +123,6 @@ function placeToken(col, row) {
     return;
   }
   currentPlayer = 3 - currentPlayer;
-  stopTimer();
-  setTime(60);
-  intervalId = setInterval(countTime, 1000);
 }
 
 function handleClick(ev) {
@@ -123,57 +136,28 @@ function handleClick(ev) {
   const boxIndex = getBoxIndex(boxEl);
   const col = boxIndex % 7;
   const row = Math.floor(boxIndex / 7);
-  console.log(col, row);
   placeToken(col, row);
   displayCurrentPlayer.textContent = `${currentPlayer} to play`;
-}
-
-function secondsToMmSs(totalSeconds) {
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  const secondsStr = ("" + seconds).padStart(2, "0");
-
-  return `${minutes}:${secondsStr}`;
 }
 
 function stop(winner) {
   let winnerSign = "";
   if (winner == 1) {
     winnerSign = "Player One wins!";
+    alert("Player one wins: 4 ETH")
   } else {
     winnerSign = "Player Two wins!";
+    alert("Player two wins: 4 ETH")
   }
   
   renderGameStatus(winnerSign);
   isStopped = true;
-  stopTimer();
   finalWinner = winner;
-}
-
-function setTime(totalSeconds) {
-  time = totalSeconds;
-  document.querySelector('.time').textContent = secondsToMmSs(time);
-}
-
-function countTime() {
-  setTime(time - 1);
-  if (time <= 0) {
-    stop(3 - currentPlayer);
-  }
 }
 
 function renderGameStatus(gameStatus) {
     document.querySelector('.game-status').textContent = gameStatus;
 }
-
-function stopTimer() {
-  if (intervalId > -1) {
-    clearInterval(intervalId);
-    intervalId = -1;
-  }
-}
-
-intervalId = setInterval(countTime, 1000);
 
 document.querySelector('.quit-game-button').addEventListener('click', () => {
   if (confirm("Are you sure you want to quit?")) {
